@@ -1,0 +1,57 @@
+.btn__1{
+    padding: 5px 17px;
+    border-radius: 10px;
+    border: 1px solid #a782e9;
+}
+.btn__1:hover {
+    color:#a782e9 !important;
+}
+.fs-16 {
+    font-size: 16px;
+}
+.fs-15 {
+    font-size: 15px;
+}
+.fs-14 {
+    font-size: 14px;
+}
+.fs-13 {
+    font-size: 13px;
+}
+.color-white,.text-white {
+    color: white;
+}
+.light-border-black {
+    border-bottom: 1px solid #232e40;
+}
+.fw-bold {
+    font-weight: bold !important;
+}
+.width-auto {
+    width: auto;
+}
+.h-42 {
+    height: 42px;
+}
+.h-38 {
+    height: 38px;
+}
+.circle-li li {
+    list-style-type: circle;
+    text-align: start;
+}
+.text-small {
+    font-size: small;
+}
+.text-medium {
+    font-size: medium;
+}
+@media (max-width: 576px) { /* Phones */
+    .text-small-phone {
+        font-size: small;
+    }
+}
+
+.w-100 {
+    width: 100% !important;
+}
