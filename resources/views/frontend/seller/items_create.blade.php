@@ -85,7 +85,7 @@
     
             <div class="mb-3">
                 <label>Upload Images:</label>
-                <input type="file" id="imageInput" name="images[]" class="form-control" multiple>
+                <input type="file" id="imageInput" name="images[]" class="form-control" multiple onchange="event.preventDefault();">
             </div>
         
             <!-- Image Preview Section -->
@@ -101,19 +101,19 @@
 @endsection
 
 @section('js')
-form is uploading when selecting feature image and highlight feature image
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let selectedFiles = []; // Store selected files
-    
+        let featureImageName = null; // Track feature image
+
         document.getElementById('imageInput').addEventListener('change', function(event) {
             let files = Array.from(event.target.files);
             let previewContainer = document.getElementById('imagePreviewContainer');
-    
+
             files.forEach(file => {
-                if (!selectedFiles.some(f => f.name === file.name)) { // Avoid duplicates
+                if (!selectedFiles.some(f => f.name === file.name)) { // Avoid duplicate images
                     selectedFiles.push(file);
-    
+
                     let reader = new FileReader();
                     reader.onload = function(e) {
                         let imageWrapper = document.createElement('div');
@@ -121,17 +121,32 @@ form is uploading when selecting feature image and highlight feature image
                         imageWrapper.style.position = 'relative';
                         imageWrapper.style.margin = '10px';
                         imageWrapper.style.display = 'inline-block';
-    
+                        imageWrapper.style.border = '2px solid transparent';
+
                         let img = document.createElement('img');
                         img.src = e.target.result;
                         img.style.width = '100px';
                         img.style.height = '100px';
                         img.style.objectFit = 'cover';
                         img.dataset.filename = file.name;
-    
+
+                        // Feature Image Tag
+                        let featureTag = document.createElement('div');
+                        featureTag.innerText = 'Feature';
+                        featureTag.classList.add('feature-tag');
+                        featureTag.style.position = 'absolute';
+                        featureTag.style.top = '5px';
+                        featureTag.style.left = '5px';
+                        featureTag.style.background = 'gold';
+                        featureTag.style.color = 'black';
+                        featureTag.style.padding = '2px 5px';
+                        featureTag.style.borderRadius = '5px';
+                        featureTag.style.display = 'none'; // Hidden by default
+
                         // Feature Image Button
                         let featureButton = document.createElement('button');
-                        featureButton.innerText = 'Feature';
+                        featureButton.innerText = 'Set Feature';
+                        featureButton.type = 'button';
                         featureButton.style.position = 'absolute';
                         featureButton.style.bottom = '5px';
                         featureButton.style.left = '5px';
@@ -140,10 +155,9 @@ form is uploading when selecting feature image and highlight feature image
                         featureButton.style.border = 'none';
                         featureButton.style.cursor = 'pointer';
                         featureButton.addEventListener('click', function() {
-                            document.getElementById('featureImageInput').value = file.name;
-                            alert('Feature image selected: ' + file.name);
+                            setFeatureImage(file.name, imageWrapper, featureTag);
                         });
-    
+
                         // Remove Button
                         let removeButton = document.createElement('button');
                         removeButton.innerText = 'X';
@@ -156,23 +170,66 @@ form is uploading when selecting feature image and highlight feature image
                         removeButton.style.cursor = 'pointer';
                         removeButton.addEventListener('click', function() {
                             selectedFiles = selectedFiles.filter(f => f.name !== file.name);
+                            
+                            // If the removed image was the feature image, reset feature selection
+                            if (featureImageName === file.name) {
+                                document.getElementById('featureImageInput').value = ''; // Reset feature image
+                                featureImageName = null;
+
+                                // Set the first remaining image as the new feature image
+                                if (selectedFiles.length > 0) {
+                                    let firstImageWrapper = previewContainer.querySelector('.image-wrapper');
+                                    let firstFeatureTag = firstImageWrapper.querySelector('.feature-tag');
+                                    let firstImageName = selectedFiles[0].name;
+                                    setFeatureImage(firstImageName, firstImageWrapper, firstFeatureTag);
+                                }
+                            }
+
                             imageWrapper.remove();
                         });
-    
+
                         imageWrapper.appendChild(img);
+                        imageWrapper.appendChild(featureTag);
                         imageWrapper.appendChild(featureButton);
                         imageWrapper.appendChild(removeButton);
                         previewContainer.appendChild(imageWrapper);
+
+                        // Automatically set the first image as the feature image
+                        if (selectedFiles.length === 1) {
+                            setFeatureImage(file.name, imageWrapper, featureTag);
+                        }
                     };
-    
+
                     reader.readAsDataURL(file);
                 }
             });
-    
+
             // Reset the file input to allow re-selection of the same file
             event.target.value = '';
         });
+
+        function setFeatureImage(imageName, imageWrapper, featureTag) {
+            // Remove highlight from all images
+            document.querySelectorAll('.image-wrapper').forEach(el => {
+                el.style.border = '2px solid transparent';
+
+                // Hide previous feature tag
+                let prevFeatureTag = el.querySelector('.feature-tag');
+                if (prevFeatureTag) prevFeatureTag.style.display = 'none';
+            });
+
+            // Highlight selected feature image
+            imageWrapper.style.border = '2px solid gold';
+            featureTag.style.display = 'block';
+
+            // Store feature image filename
+            document.getElementById('featureImageInput').value = imageName;
+            featureImageName = imageName;
+        }
     });
+
+
 </script>
+    
     
 @endsection
