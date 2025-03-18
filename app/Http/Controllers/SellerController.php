@@ -10,7 +10,6 @@ use App\Mail\SellerVerification;
 class SellerController extends Controller
 {
     public function verification(Request $request){
-        // dd($request->all());
         $request->validate([
             'selling_option' => 'required',
             'first_name'     => 'required|string|max:255',
@@ -52,10 +51,10 @@ class SellerController extends Controller
             'photo_1' => asset("storage/$path_1"),
             'photo_2' => asset("storage/$path_2"),
         ];
-    
+        
         // Queue Emails
-        Mail::to(auth()->user()->email)->queue(new SellerVerification($sellerData));
-        Mail::to('gamify295@gmail.com')->queue(new SellerVerification($sellerData));
+        Mail::to(auth()->user()->email)->send(new SellerVerification($sellerData));
+        Mail::to('gamify295@gmail.com')->send(new SellerVerification($sellerData));
         
         return redirect('/')->with('success', 'Verification submitted! Email is being processed.');
     }
