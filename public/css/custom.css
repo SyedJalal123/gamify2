@@ -1,3 +1,4 @@
+
 .btn__1{
     padding: 5px 17px;
     border-radius: 10px;
@@ -54,4 +55,26 @@
 
 .w-100 {
     width: 100% !important;
+}
+.w-50 {
+    width: 50% !important;
+}
+.drop-box {
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); /* X, Y, Blur, Spread, Color */
+    border-radius: 10px;
+    padding: 20px;
+}
+.category-select {
+    background: white;
+    color: #000;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.category-select .name {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }

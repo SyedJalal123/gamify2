@@ -30,21 +30,20 @@ Route::middleware('verified')->group(function () {
     });
     Route::post('/seller-verification', [SellerController::class, 'verification'])->name('seller.verify');
 
-    // Route::get('/categories', [CategoryController::class, 'index']);
-    // Route::get('/categories/{category}/games', [GameController::class, 'index']);
-    // Route::get('/games/{game}/items/create', [ItemController::class, 'create']);
-    // Route::post('/items/store', [ItemController::class, 'store']);
-
     // Category Routes
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-
     // Game Routes
     Route::get('/games/{category}', [GameController::class, 'index'])->name('games.index');
 
+    // Get Data for Item
+    Route::get('/get-games', [ItemController::class, 'getGames']);
+    Route::get('/get-attributes', [ItemController::class, 'getAttributes']);
+
     // Item Routes
-    Route::get('/items/create/{category}/{game}', [ItemController::class, 'create'])->name('items.create');
+    Route::get('/items/create', [ItemController::class, 'create'])->name('items.create');
     Route::post('/items/store', [ItemController::class, 'store'])->name('items.store');
     Route::get('/items/{item}', [ItemController::class, 'show'])->name('items.show');
+
 });
 
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle']);

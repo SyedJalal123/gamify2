@@ -6,20 +6,52 @@ use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\Category;
 use App\Models\Game;
+use App\Models\Attribute;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
-    public function create($categoryId, $gameId)
+    public function create()
     {
-        $category = Category::findOrFail($categoryId);
-        $game = Game::findOrFail($gameId);
-        return view('frontend.seller.items_create', compact('category', 'game', 'categoryId', 'gameId'));
+        $categories = Category::with('games')->get();
+
+        return view('frontend.seller.items_create', compact('categories'));
+    }
+
+    public function index()
+    {
+        $categories = Category::all();
+        return view('frontend.seller.items_create', compact('categories'));
+    }
+
+    public function getGames(Request $request)
+    {
+        $games = Game::whereHas('categories', function ($query) use ($request) {
+            $query->where('categories.id', $request->category_id);
+        })->get();
+
+        return response()->json(['games' => $games]);
+    }
+
+    public function getAttributes(Request $request)
+    {
+        // dd($request->all());
+        $attributes = Attribute::where(function ($query) use ($request) {
+            if ($request->category_id) {
+                $query->where('category_id', $request->category_id);
+            }
+            if ($request->game_id) {
+                $query->orWhere('game_id', $request->game_id);
+            }
+        })->get();
+        // dd($attributes);
+        return response()->json(['attributes' => $attributes]);
     }
 
     public function store(Request $request)
     {
+        dd('Website Under Maintainence');
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',

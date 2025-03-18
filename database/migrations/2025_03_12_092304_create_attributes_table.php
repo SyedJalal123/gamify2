@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Server, Rank, Delivery Time
             $table->enum('type', ['text', 'number', 'select', 'checkbox']);
-            $table->json('options')->nullable();
+            $table->json('options')->nullable(); // Example: ["NA", "EU", "ASIA"]
             $table->enum('applies_to', ['game', 'category']);
             $table->foreignId('game_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->nullable()->constrained()->onDelete('cascade');

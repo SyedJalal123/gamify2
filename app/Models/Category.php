@@ -10,9 +10,9 @@ class Category extends Model
     use HasFactory;
     protected $fillable = ['name'];
 
-    public function games()
+    public function games() 
     {
-        return $this->belongsToMany(Game::class);
+        return $this->belongsToMany(Game::class, 'category_game');
     }
 
     public function attributes()
