@@ -20,6 +20,12 @@ use App\Http\Controllers\Auth\FacebookController;
 |
 */
 
+Route::get('/clear-cache', function () {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('config:cache');
+    return "Config and cache cleared!";
+});
 
 Route::middleware('verified')->group(function () {
     Route::get('/', function () {
