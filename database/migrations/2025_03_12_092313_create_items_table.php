@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('game_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description');
-            $table->decimal('price', 10, 2);
+            $table->float('price');
             $table->enum('delivery_type', ['instant', 'manual']);
             $table->json('images');
             $table->string('feature_image');

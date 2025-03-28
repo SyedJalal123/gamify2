@@ -98,3 +98,20 @@ input.invalid {
     transition: 0.5s;
     box-shadow: 5px 5px 15px rgb(255 255 255 / 0%);
 }
+
+
+
+
+.preview-container { display: flex; flex-wrap: wrap; gap: 10px; }
+.image-wrapper { position: relative; display: inline-block; }
+.image-wrapper img { width: 100px; cursor: pointer; border: 3px solid transparent; }
+.image-wrapper .remove-btn { 
+    position: absolute; top: 0; right: 0; background: red; color: white; 
+    border: none; cursor: pointer; padding: 2px 5px; font-size: 12px; 
+}
+.featured { border: 3px solid gold !important; }
+.featured-tag { 
+    position: absolute; bottom: 5px; left: 5px; background: gold; color: black; 
+    padding: 3px 5px; font-size: 12px; font-weight: bold; border-radius: 3px;
+}
+

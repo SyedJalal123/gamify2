@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="{{asset('css/items_create.css')}}">
 @endsection
 
+{{-- 
+- Modify the attributes a little. Because every category with game has different attributes like 
+- "gold with wow" has diffrent attributes and "accounts with wow" has different attributes
+- and no column should be null in database not game_id and not category_id but instead add multiple game_ids and multiple category_ids 
+- so change it like when the user cliks on game then it fetches all the attributes based on category and game both
+- and there are no game and category attributes it should be priorties column "1 for first" form "2 for secound" and "3 for final form" --}}
 
 @section('content')
     <!-- home -->
@@ -21,6 +27,15 @@
                         <div class="container__top text-center">
                             <div class="title">
                                 <h1>Start selling</h1>
+                                @if ($errors->any())
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
                             </div>
                             
                         </div>
@@ -39,7 +54,7 @@
                                                     
                                                     
                                                     @foreach($categories as $category)
-                                                    <div class="category-select mb-2 category-item" data-category-id="{{ $category->id }}" onclick="nextPrev(1)">
+                                                    <div class="category-select mb-2 category-item" data-category-id="{{ $category->id }}" onclick="nextPrev(1),selectCategory({{ $category->id }})">
                                                         <div class="name">
                                                             <eld-image style="height: 32px;">
                                                                 <img class="app-image" alt="Currency"
@@ -88,16 +103,13 @@
                                     </eld-select-category>
                                 </div>
                             </div>
-                            {{-- Name:
-                            <p><input placeholder="First name..." oninput="this.className = ''"></p>
-                            <p><input placeholder="Last name..." oninput="this.className = ''"></p> --}}
                         </div>
                         
                         <div class="tab tab_2">
                             <div class="container">
                                 <div id="games-container" style="display: none;">
                                     <h3>Select a Game</h3>
-                                    <select id="games-dropdown" required>
+                                    <select id="games-dropdown" name="game_id" required>
                                         <option value="">Select a Game</option>
                                     </select>
                                 </div>
@@ -110,6 +122,7 @@
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="tab_3">
                             <div class="tab">
                                 <div class="container">
@@ -131,8 +144,9 @@
                         </div>
                         
                         <div class="tab">
+                            <input type="hidden" name="category_id" id="selectedCategory">
                             <div class="container">
-                                <div class="mb-3">
+                                <div class="mb-3 title_container">
                                     <label>Title:</label>
                                     <input type="text" name="title" class="form-control" required>
                                 </div>
@@ -147,23 +161,27 @@
                                     <input type="number" name="price" class="form-control" required>
                                 </div>
                         
-                                <div class="attributes-container" style="display: none;">
+                                <div class="attributes-container mb-5" style="display: none;">
 
                                     <div id="category-attributes-list"></div>
                                 
                                 </div>
-                        
+                    
                                 <div class="mb-3">
                                     <label>Upload Images:</label>
-                                    <input type="file" id="imageInput" name="images[]" class="form-control" multiple onchange="event.preventDefault();">
+                                    <!-- Button for triggering file input -->
+                                    <button type="button" class="btn-sm btn-dark" id="uploadBtn">+ Add Images</button>
+                                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+
+                                    <div class="preview-container" id="preview"></div>
+
+                                    <!-- Hidden input to store selected images -->
+                                    <div id="imageInputsContainer"></div>
+                                    
+                                    <input type="hidden" name="feature_image" id="featuredImageInput" required>
                                 </div>
-                            
-                                <!-- Image Preview Section -->
-                                <div id="imagePreviewContainer" class="d-flex flex-wrap"></div>
-                            
-                                <!-- Hidden input for feature image -->
-                                <input type="hidden" name="feature_image" id="featureImageInput" required>
-                    
+                                
+
                             </div>
 
                             <div style="overflow:auto;" class="d-flex justify-content-center buttons mt-5">
@@ -250,6 +268,7 @@
             // if you have reached the end of the form... :
             if (currentTab >= x.length) {
                 //...the form gets submitted:
+                document.getElementById("loadingScreen").style.display = "flex";
                 document.getElementById("regForm").submit();
                 return false;
             }
@@ -386,7 +405,7 @@
                     if (attr.type === 'text') {
                         inputField = `<input type="text" name="attribute_${attr.id}" placeholder="${attr.name}" class="form-control" />`;
                     } else if (attr.type === 'select') {
-                        let options = JSON.parse(attr.options).map(option => 
+                        let options = attr.options.map(option => 
                             `<option value="${option}">${option}</option>`).join('');
                         inputField = `<select name="attribute_${attr.id}" class="form-control">${options}</select>`;
                     }
@@ -401,134 +420,119 @@
                 
             }
         });
+
+        function selectCategory(categoryId) {
+            // Set the selected category ID in the hidden input field
+            $('#selectedCategory').val(categoryId);
+
+            // Get the title input field
+            let titleInput = $('input[name="title"]');
+
+            // Show/hide .title_container and update title input value
+            if (categoryId == 1) {
+                $('.title_container').hide();  // Hide if category is "Gold"
+                titleInput.val('Gold');        // Set title to "Gold"
+            } else {
+                $('.title_container').show();  // Show for other categories
+                titleInput.val('');            // Clear title input
+            }
+        }
+
     </script>
 
+    {{-- Images Script --}}
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let selectedFiles = []; // Store selected files
-            let featureImageName = null; // Track feature image
+        let selectedFiles = [];
 
-            document.getElementById('imageInput').addEventListener('change', function(event) {
-                let files = Array.from(event.target.files);
-                let previewContainer = document.getElementById('imagePreviewContainer');
+        document.getElementById('uploadBtn').addEventListener('click', function() {
+            document.getElementById('imageInput').click();
+        });
 
-                files.forEach(file => {
-                    if (!selectedFiles.some(f => f.name === file.name)) { // Avoid duplicate images
-                        selectedFiles.push(file);
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            let preview = document.getElementById('preview');
+            let imageInputsContainer = document.getElementById('imageInputsContainer');
+            let featuredImageInput = document.getElementById('featuredImageInput');
 
-                        let reader = new FileReader();
-                        reader.onload = function(e) {
-                            let imageWrapper = document.createElement('div');
-                            imageWrapper.classList.add('image-wrapper');
-                            imageWrapper.style.position = 'relative';
-                            imageWrapper.style.margin = '10px';
-                            imageWrapper.style.display = 'inline-block';
-                            imageWrapper.style.border = '2px solid transparent';
+            if (event.target.files.length > 0) {
+                let file = event.target.files[0];
 
-                            let img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.style.width = '100px';
-                            img.style.height = '100px';
-                            img.style.objectFit = 'cover';
-                            img.dataset.filename = file.name;
+                if (!selectedFiles.some(f => f.name === file.name)) { // Prevent duplicate uploads
+                    let reader = new FileReader();
 
-                            // Feature Image Tag
-                            let featureTag = document.createElement('div');
-                            featureTag.innerText = 'Feature';
-                            featureTag.classList.add('feature-tag');
-                            featureTag.style.position = 'absolute';
-                            featureTag.style.top = '5px';
-                            featureTag.style.left = '5px';
-                            featureTag.style.background = 'gold';
-                            featureTag.style.color = 'black';
-                            featureTag.style.padding = '2px 5px';
-                            featureTag.style.borderRadius = '5px';
-                            featureTag.style.display = 'none'; // Hidden by default
+                    reader.onload = function(e) {
+                        let imageWrapper = document.createElement('div');
+                        imageWrapper.classList.add('image-wrapper');
 
-                            // Feature Image Button
-                            let featureButton = document.createElement('button');
-                            featureButton.innerText = 'Set Feature';
-                            featureButton.type = 'button';
-                            featureButton.style.position = 'absolute';
-                            featureButton.style.bottom = '5px';
-                            featureButton.style.left = '5px';
-                            featureButton.style.background = 'green';
-                            featureButton.style.color = 'white';
-                            featureButton.style.border = 'none';
-                            featureButton.style.cursor = 'pointer';
-                            featureButton.addEventListener('click', function() {
-                                setFeatureImage(file.name, imageWrapper, featureTag);
-                            });
+                        let img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.dataset.filename = file.name;
 
-                            // Remove Button
-                            let removeButton = document.createElement('button');
-                            removeButton.innerText = 'X';
-                            removeButton.style.position = 'absolute';
-                            removeButton.style.top = '5px';
-                            removeButton.style.right = '5px';
-                            removeButton.style.background = 'red';
-                            removeButton.style.color = 'white';
-                            removeButton.style.border = 'none';
-                            removeButton.style.cursor = 'pointer';
-                            removeButton.addEventListener('click', function() {
-                                selectedFiles = selectedFiles.filter(f => f.name !== file.name);
-                                
-                                // If the removed image was the feature image, reset feature selection
-                                if (featureImageName === file.name) {
-                                    document.getElementById('featureImageInput').value = ''; // Reset feature image
-                                    featureImageName = null;
+                        // Remove Button
+                        let removeBtn = document.createElement('button');
+                        removeBtn.innerText = 'X';
+                        removeBtn.classList.add('remove-btn');
+                        removeBtn.onclick = function() {
+                            preview.removeChild(imageWrapper);
+                            selectedFiles = selectedFiles.filter(f => f.name !== file.name);
+                            document.getElementById(file.name).remove();
 
-                                    // Set the first remaining image as the new feature image
-                                    if (selectedFiles.length > 0) {
-                                        let firstImageWrapper = previewContainer.querySelector('.image-wrapper');
-                                        let firstFeatureTag = firstImageWrapper.querySelector('.feature-tag');
-                                        let firstImageName = selectedFiles[0].name;
-                                        setFeatureImage(firstImageName, firstImageWrapper, firstFeatureTag);
-                                    }
+                            // Update featured image if removed
+                            if (featuredImageInput.value === file.name) {
+                                if (selectedFiles.length > 0) {
+                                    featuredImageInput.value = selectedFiles[0].name;
+                                    updateFeaturedImage(selectedFiles[0].name);
+                                } else {
+                                    featuredImageInput.value = '';
                                 }
-
-                                imageWrapper.remove();
-                            });
-
-                            imageWrapper.appendChild(img);
-                            imageWrapper.appendChild(featureTag);
-                            imageWrapper.appendChild(featureButton);
-                            imageWrapper.appendChild(removeButton);
-                            previewContainer.appendChild(imageWrapper);
-
-                            // Automatically set the first image as the feature image
-                            if (selectedFiles.length === 1) {
-                                setFeatureImage(file.name, imageWrapper, featureTag);
                             }
                         };
 
-                        reader.readAsDataURL(file);
-                    }
-                });
+                        // Click to Set Featured Image
+                        img.onclick = function() {
+                            updateFeaturedImage(file.name);
+                        };
 
-                // Reset the file input to allow re-selection of the same file
-                event.target.value = '';
-            });
+                        imageWrapper.appendChild(img);
+                        imageWrapper.appendChild(removeBtn);
+                        preview.appendChild(imageWrapper);
 
-            function setFeatureImage(imageName, imageWrapper, featureTag) {
-                // Remove highlight from all images
-                document.querySelectorAll('.image-wrapper').forEach(el => {
-                    el.style.border = '2px solid transparent';
+                        selectedFiles.push(file);
 
-                    // Hide previous feature tag
-                    let prevFeatureTag = el.querySelector('.feature-tag');
-                    if (prevFeatureTag) prevFeatureTag.style.display = 'none';
-                });
+                        // Create hidden input field for each image
+                        let input = document.createElement('input');
+                        input.type = 'file';
+                        input.name = 'images[]';
+                        input.id = file.name;
+                        input.files = event.target.files;
+                        input.style.display = 'none';
+                        imageInputsContainer.appendChild(input);
 
-                // Highlight selected feature image
-                imageWrapper.style.border = '2px solid gold';
-                featureTag.style.display = 'block';
+                        // Auto-set first image as featured
+                        if (selectedFiles.length === 1) {
+                            updateFeaturedImage(file.name);
+                        }
+                    };
 
-                // Store feature image filename
-                document.getElementById('featureImageInput').value = imageName;
-                featureImageName = imageName;
+                    reader.readAsDataURL(file);
+                }
             }
         });
+
+        function updateFeaturedImage(filename) {
+            document.querySelectorAll('.image-wrapper img').forEach(i => i.classList.remove('featured'));
+            document.querySelectorAll('.featured-tag').forEach(tag => tag.remove());
+
+            let featuredImg = document.querySelector(`.image-wrapper img[data-filename="${filename}"]`);
+            if (featuredImg) {
+                featuredImg.classList.add('featured');
+                document.getElementById('featuredImageInput').value = filename;
+
+                let tag = document.createElement('div');
+                tag.classList.add('featured-tag');
+                tag.innerText = 'FEATURED';
+                featuredImg.parentElement.appendChild(tag);
+            }
+        }
     </script>
 @endsection
 

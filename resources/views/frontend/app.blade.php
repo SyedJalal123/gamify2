@@ -49,24 +49,40 @@
                                     <span></span>
                                     <span></span>
                                 </button>
-
+        
                                 <a href="{{url('/')}}" class="header__logo">
                                     <h2 style="color: white;font-weight: 900;font-family: cursive;">Gamify</h2>
-                                    {{-- <img src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/logo.svg')}}" alt=""> --}}
                                 </a>
-
+        
                                 <ul class="header__nav">
-                                    <li class="header__nav-item">
+                                    @php $categories = categories(); @endphp
+                                    @foreach ($categories as $category)
+                                        <li class="header__nav-item">
+                                            <a class="header__nav-link" href="#" role="button" id="dropdownMenu0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{$category->name}} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144"></path></svg></a>
+            
+                                            <ul class="dropdown-menu header__nav-menu" aria-labelledby="dropdownMenu0">
+                                                @foreach ($category->games as $game)
+                                                    <li>
+                                                        <div class="d-flex">
+                                                            <img src="{{asset($game->image)}}" alt="">
+                                                            <a href="{{url('catalog')}}/{{$category->id}}/{{$game->id}}">{{$game->name}}</a>
+                                                        </div>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </li>  
+                                    @endforeach
+                                    {{-- <li class="header__nav-item">
                                         <a class="header__nav-link" href="https://gogame.volkovdesign.com/#" role="button" id="dropdownMenu0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Home <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144"></path></svg></a>
-
+        
                                         <ul class="dropdown-menu header__nav-menu" aria-labelledby="dropdownMenu0">
                                             <li><a href="https://gogame.volkovdesign.com/index.html">Home style 1</a></li>
                                             <li><a href="https://gogame.volkovdesign.com/index2.html">Home style 2</a></li>
                                         </ul>
-                                    </li>
+                                    </li>   
                                     <li class="header__nav-item">
                                         <a class="header__nav-link" href="https://gogame.volkovdesign.com/#" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Catalog <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144"></path></svg></a>
-
+        
                                         <ul class="dropdown-menu header__nav-menu" aria-labelledby="dropdownMenu1">
                                             <li><a href="https://gogame.volkovdesign.com/catalog.html">Catalog (sidebar left)</a></li>
                                             <li><a href="https://gogame.volkovdesign.com/catalog2.html">Catalog (sidebar right)</a></li>
@@ -77,14 +93,14 @@
                                     </li>
                                     <li class="header__nav-item">
                                         <a class="header__nav-link" href="https://gogame.volkovdesign.com/#" role="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">News <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144"></path></svg></a>
-
+        
                                         <ul class="dropdown-menu header__nav-menu" aria-labelledby="dropdownMenu2">
                                             <li><a href="https://gogame.volkovdesign.com/news.html">News (small grid)</a></li>
                                             <li><a href="https://gogame.volkovdesign.com/news2.html">News (big grid)</a></li>
-
+        
                                             <li class="dropdown-submenu">
                                                 <a class="dropdown-item" href="https://gogame.volkovdesign.com/#" role="button" id="dropdownMenuSub" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Single page</a>
-
+        
                                                 <ul class="dropdown-menu header__nav-menu" aria-labelledby="dropdownMenuSub">
                                                     <li><a href="https://gogame.volkovdesign.com/article.html">Article</a></li>
                                                     <li><a href="https://gogame.volkovdesign.com/interview.html">Interview</a></li>
@@ -99,7 +115,7 @@
                                         <a class="header__nav-link header__nav-link--more" href="https://gogame.volkovdesign.com/#" role="button" id="dropdownMenu3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><circle cx="256" cy="256" r="32" style="fill:none; stroke-miterlimit:10;stroke-width:32px"></circle><circle cx="416" cy="256" r="32" style="fill:none;stroke-miterlimit:10;stroke-width:32px"></circle><circle cx="96" cy="256" r="32" style="fill:none;stroke-miterlimit:10;stroke-width:32px"></circle></svg>
                                         </a>
-
+        
                                         <ul class="dropdown-menu header__nav-menu header__nav-menu--scroll mCustomScrollbar _mCS_1" aria-labelledby="dropdownMenu3" style="overflow: visible;"><div id="mCSB_1" class="mCustomScrollBox mCS-custom-bar2 mCSB_vertical mCSB_outside" style="max-height: 199px;"><div id="mCSB_1_container" class="mCSB_container" style="position:relative; top:0; left:0;" dir="ltr">
                                             <li><a href="https://gogame.volkovdesign.com/checkout.html">Checkout</a></li>
                                             <li><a href="https://gogame.volkovdesign.com/favorites.html">Favorites</a></li>
@@ -124,14 +140,14 @@
                                                 <li><a href="{{url('login')}}">Sign in</a></li>
                                                 <li><a href="{{url('register')}}">Sign up</a></li>
                                             @endif
-                                            {{-- <li><a href="https://gogame.volkovdesign.com/forgot.html">Forgot password</a></li> --}}
+                                            <li><a href="https://gogame.volkovdesign.com/forgot.html">Forgot password</a></li>
                                             <li><a href="https://gogame.volkovdesign.com/privacy.html">Privacy policy</a></li>
                                             <li><a href="https://gogame.volkovdesign.com/contacts.html">Contacts</a></li>
                                             <li><a href="https://gogame.volkovdesign.com/404.html">404 Page</a></li>
                                         </div></div><div id="mCSB_1_scrollbar_vertical" class="mCSB_scrollTools mCSB_1_scrollbar mCS-custom-bar2 mCSB_scrollTools_vertical" style="display: block;"><div class="mCSB_draggerContainer"><div id="mCSB_1_dragger_vertical" class="mCSB_dragger" style="position: absolute; min-height: 30px; display: block; height: 115px; max-height: 189px;"><div class="mCSB_dragger_bar" style="line-height: 30px;"></div><div class="mCSB_draggerRail"></div></div></div></div></ul>
-                                    </li>
+                                    </li> --}}
                                 </ul>
-
+        
                                 <div class="header__actions d-flex  justify-content-end">
                                     {{-- Language settings --}}
                                     {{-- <div class="header__lang">
@@ -140,7 +156,7 @@
                                             <span>EN</span>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><path d="M98,190.06,237.78,353.18a24,24,0,0,0,36.44,0L414,190.06c13.34-15.57,2.28-39.62-18.22-39.62H116.18C95.68,150.44,84.62,174.49,98,190.06Z"></path></svg>
                                         </a>
-
+        
                                         <ul class="dropdown-menu header__lang-menu" aria-labelledby="dropdownMenuLang">
                                             <li><a href="https://gogame.volkovdesign.com/#"><img src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/spain.svg')}}" alt=""><span>SP</span></a></li>
                                             <li><a href="https://gogame.volkovdesign.com/#"><img src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/russia.svg')}}" alt=""><span>RU</span></a></li>
@@ -148,7 +164,7 @@
                                         </ul>
                                     </div> --}}
                                     
-
+        
                                     @if(auth()->user())
                                         {{-- Account Button --}}
                                         {{-- <a href="{{url('profile')}}" class="header__login">
@@ -163,7 +179,7 @@
                                                 {{-- <img src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/img/user.png')}}" alt="" style="width: 100%; height: 100%; filter:contrast(0);"> --}}
                                                 {{-- <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><circle cx="256" cy="256" r="32" style="fill:none; stroke-miterlimit:10;stroke-width:32px"></circle><circle cx="416" cy="256" r="32" style="fill:none;stroke-miterlimit:10;stroke-width:32px"></circle><circle cx="96" cy="256" r="32" style="fill:none;stroke-miterlimit:10;stroke-width:32px"></circle></svg> --}}
                                             </a>
-    
+        
                                             <ul class="dropdown-menu header__nav-menu  mCustomScrollbar _mCS_1" aria-labelledby="dropdownMenu3" style="overflow: visible;min-width: 279px;">
                                                 <li style="border-bottom:1px solid grey;">
                                                     <div class="d-flex align-items-center justify-content-between mb-2 color-white">
@@ -177,7 +193,8 @@
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <a href="#" class="btn__1" data-toggle="modal" data-target="#exampleModal">
+                                                            @php $seller = get_seller(); @endphp
+                                                            <a class="btn__1" @if($seller == null) data-toggle="modal" data-target="#exampleModal" href="#" @else  href="{{url('items/create')}}" @endif>
                                                                 <span>Sell</span>
                                                             </a>
                                                         </div>
@@ -218,7 +235,7 @@
                     </div>
                 </div>
             </div>
-
+        
             <div class="header__wrap">
                 <div class="container">
                     <div class="row">
@@ -243,13 +260,13 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><path d="M221.09,64A157.09,157.09,0,1,0,378.18,221.09,157.1,157.1,0,0,0,221.09,64Z" style="fill:none;stroke-miterlimit:10;stroke-width:32px"></path><line x1="338.29" y1="338.29" x2="448" y2="448" style="fill:none;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"></line></svg>
                                     </button>
                                 </form>
-
+        
                                 <div class="header__actions header__actions--2">
                                     <a href="https://gogame.volkovdesign.com/favorites.html" class="header__link">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><path d="M352.92,80C288,80,256,144,256,144s-32-64-96.92-64C106.32,80,64.54,124.14,64,176.81c-1.1,109.33,86.73,187.08,183,252.42a16,16,0,0,0,18,0c96.26-65.34,184.09-143.09,183-252.42C447.46,124.14,405.68,80,352.92,80Z" style="fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></path></svg>
                                         <span>Favorites</span>
                                     </a>
-
+        
                                     <a href="https://gogame.volkovdesign.com/checkout.html" class="header__link">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><circle cx="176" cy="416" r="16" style="fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></circle><circle cx="400" cy="416" r="16" style="fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></circle><polyline points="48 80 112 80 160 352 416 352" style="fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></polyline><path d="M160,288H409.44a8,8,0,0,0,7.85-6.43l28.8-144a8,8,0,0,0-7.85-9.57H128" style="fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></path></svg>
                                         <span>$00.00</span>
@@ -344,7 +361,10 @@
             </div>
         </footer>
         <!-- end footer -->
-
+        
+        <div id="loadingScreen">
+            <div class="loader-circle"></div>
+        </div>   
         
         <!-- JS -->
         {{-- <script src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/jquery-3.5.1.min.js.download')}}"></script> --}}
@@ -355,8 +375,7 @@
         <script src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/nouislider.min.js.download')}}"></script>
         <script src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/jquery.mousewheel.min.js.download')}}"></script>
         <script src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/jquery.mCustomScrollbar.min.js.download')}}"></script>
-        <script src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/main.js.download')}}"></script>
-        
+        <script src="{{asset('GoGame – Digital marketplace HTML Template Preview - ThemeForest_files/main.js.download')}}"></script>        
 
         @yield('js')
         <script>

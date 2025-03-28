@@ -769,9 +769,7 @@
             </div>
         </div>
     </section>
-    <!-- end home -->
-
-    
+    <!-- end home --> 
 @endsection
 
 
@@ -822,6 +820,7 @@
             // if you have reached the end of the form... :
             if (currentTab >= x.length) {
                 //...the form gets submitted:
+                document.getElementById("loadingScreen").style.display = "flex";
                 document.getElementById("regForm").submit();
                 return false;
             }

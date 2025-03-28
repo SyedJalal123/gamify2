@@ -8,6 +8,9 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\FacebookController;
+use App\Models\Item;
+use App\Models\Category;
+use App\Models\Game;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,17 +32,13 @@ Route::get('/clear-cache', function () {
 
 Route::middleware('verified')->group(function () {
     Route::get('/', function () {
-        return view('frontend.home');
+        $categories = Category::with('games')->get();
+        return view('frontend.home', compact('categories'));
     });
     Route::get('/seller-verification', function () {
         return view('frontend.seller_verification');
     });
     Route::post('/seller-verification', [SellerController::class, 'verification'])->name('seller.verify');
-
-    // Category Routes
-    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-    // Game Routes
-    Route::get('/games/{category}', [GameController::class, 'index'])->name('games.index');
 
     // Get Data for Item
     Route::get('/get-games', [ItemController::class, 'getGames']);
@@ -48,8 +47,8 @@ Route::middleware('verified')->group(function () {
     // Item Routes
     Route::get('/items/create', [ItemController::class, 'create'])->name('items.create');
     Route::post('/items/store', [ItemController::class, 'store'])->name('items.store');
-    Route::get('/items/{item}', [ItemController::class, 'show'])->name('items.show');
 
+    Route::get('catalog/{category_id}/{game_id}', [GameController::class, 'index']);
 });
 
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle']);

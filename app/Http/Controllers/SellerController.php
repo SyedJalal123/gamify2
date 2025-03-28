@@ -10,6 +10,7 @@ use App\Mail\SellerVerification;
 class SellerController extends Controller
 {
     public function verification(Request $request){
+        // dd($request->all());
         $request->validate([
             'selling_option' => 'required',
             'first_name'     => 'required|string|max:255',
@@ -30,6 +31,7 @@ class SellerController extends Controller
     
         // Save seller details
         $seller = Seller::create([
+            'user_id'        => auth()->user()->id,
             'selling_option' => $request->selling_option,
             'first_name'     => $request->first_name,
             'middle_name'    => $request->middle_name,

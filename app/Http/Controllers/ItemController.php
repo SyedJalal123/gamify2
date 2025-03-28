@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\Category;
 use App\Models\Game;
 use App\Models\Attribute;
+use App\Models\ItemAttribute;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,13 +17,13 @@ class ItemController extends Controller
     {
         $categories = Category::with('games')->get();
 
-        return view('frontend.seller.items_create', compact('categories'));
+        return view('frontend.items_create', compact('categories'));
     }
 
     public function index()
     {
         $categories = Category::all();
-        return view('frontend.seller.items_create', compact('categories'));
+        return view('frontend.items_create', compact('categories'));
     }
 
     public function getGames(Request $request)
@@ -51,44 +52,88 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
-        dd('Website Under Maintainence');
+        // dd($request->all());
+        
+        // Validate the input
         $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'game_id' => 'nullable|exists:games,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'game_id' => 'required|exists:games,id',
-            'delivery_type' => 'required|in:instant,manual',
             'price' => 'required|numeric|min:0',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'images' => 'required|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'feature_image' => 'required|string', // Ensure feature image is provided
         ]);
 
-        // Handle multiple images
+        // Handle image uploads
         $imagePaths = [];
+        $featureImagePath = null; // Initialize feature image path
+
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('items', 'public');
-                $imagePaths[] = $path;
+            foreach ($request->file('images') as $index => $image) {
+                $randomNumber = rand(1, 99999); // Generate one random number for all images
+                $filename = time() . '.' . $randomNumber . '.' . pathinfo($image->getClientOriginalName(), PATHINFO_EXTENSION);
+                $filePath = 'uploads/items/' . $filename;
+                $image->move(public_path('uploads/items'), $filename);
+                $imagePaths[] = $filePath;
+
+                // Check if this image matches the selected feature image
+                if ($request->feature_image == $image->getClientOriginalName()) {
+                    $featureImagePath = $filePath;
+                }
+
+                // If feature_image is still null, assign the first uploaded image
+                if ($index === 0 && $featureImagePath === null) {
+                    $featureImagePath = $filePath;
+                }
             }
         }
 
-        // Ensure the selected feature image is within uploaded images
-        if (!in_array($request->feature_image, $imagePaths)) {
-            return redirect()->back()->withErrors(['feature_image' => 'Invalid feature image selection']);
-        }
-
+        // Save item to database
         $item = Item::create([
-            'title'         => $request->title,
-            'seller_id'     => Auth::id(),
-            'description'   => $request->description,
-            'category_id'   => $request->category_id,
-            'game_id'       => $request->game_id,
-            'price'         => $request->price,
-            'delivery_type' => $request->delivery_type,
-            'images'        => json_encode($imagePaths),
-            'feature_image' => $request->feature_image,
+            'category_id' => $request->category_id,
+            'game_id' => $request->game_id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'price' => $request->price,
+            'images' => json_encode($imagePaths), // Store all images in JSON format
+            'feature_image' => $featureImagePath, // Set feature image from input
+            'seller_id' => Auth::id(),
         ]);
 
-        return redirect()->route('frontend.seller.items_show', $item->id)->with('success', 'Item listed successfully!');
+        // Save attributes dynamically First Method
+        $attributes = [];
+        foreach ($request->all() as $key => $value) {
+            if (str_starts_with($key, 'attribute_')) {
+                $attributeId = str_replace('attribute_', '', $key);
+                $attributes[] = [
+                    'item_id' => $item->id,
+                    'attribute_id' => $attributeId, // Extracted from input name
+                    'value' => $value,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+        }
+
+        if (!empty($attributes)) {
+            ItemAttribute::insert($attributes);
+        }
+        
+        // Save attributes dynamically Second Method
+        // foreach ($request->except(['_token', 'title', 'description', 'price', 'images', 'category_id', 'game_id', 'seller_id', 'feature_image']) as $key => $value) {
+        //     if (str_starts_with($key, 'attribute_')) {
+        //         $attributeId = str_replace('attribute_', '', $key);
+        //         ItemAttribute::create([
+        //             'item_id' => $item->id,
+        //             'attribute_id' => $attributeId,
+        //             'value' => $value
+        //         ]);
+        //     }
+        // }
+
+        return redirect()->back()->with('success', 'Item created successfully!');
     }
 
     public function show(Item $item)
@@ -96,3 +141,8 @@ class ItemController extends Controller
         return view('frontend.seller.items_show', compact('item'));
     }
 }
+
+
+
+
+

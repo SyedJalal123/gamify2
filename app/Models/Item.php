@@ -33,4 +33,11 @@ class Item extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
+    public function attributes()
+    {
+        return $this->belongsToMany(Attribute::class, 'item_attributes')
+                    ->withPivot('value') // If you have extra column(s) in pivot
+                    ->withTimestamps();   // If you have timestamps in pivot
+    }
 }

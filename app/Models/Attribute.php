@@ -8,8 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Attribute extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'type', 'category_id', 'game_id'];
+    protected $fillable = ['name', 'type', 'options', 'applies_to', 'game_id', 'category_id'];
 
+    protected $casts = [
+        'options' => 'array', // Since options are stored as JSON
+    ];
+    
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -18,5 +22,12 @@ class Attribute extends Model
     public function game()
     {
         return $this->belongsTo(Game::class);
+    }
+
+    public function items()
+    {
+        return $this->belongsToMany(Item::class, 'item_attributes')
+                    ->withPivot('value')
+                    ->withTimestamps();
     }
 }
