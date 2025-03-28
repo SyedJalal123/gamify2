@@ -26,8 +26,16 @@ class SellerController extends Controller
         ]);
     
         // Store files
-        $path_1 = $request->file('main_photo_1')->store('seller_verification', 'public');
-        $path_2 = $request->file('main_photo_2')->store('seller_verification', 'public');
+        $filename_1 = time() . '.' . rand(1, 99999) . '.' . pathinfo($request->file('main_photo_1')->getClientOriginalName(), PATHINFO_EXTENSION);
+        $path_1 = 'uploads/seller_verification/' . $filename_1;
+        $request->file('main_photo_1')->move(public_path('uploads/seller_verification'), $filename_1);
+
+        $filename = time() . '.' . rand(1, 99999) . '.' . pathinfo($request->file('main_photo_2')->getClientOriginalName(), PATHINFO_EXTENSION);
+        $path_2 = 'uploads/seller_verification/' . $filename;
+        $request->file('main_photo_2')->move(public_path('uploads/seller_verification'), $filename);
+
+        // $path_1 = $request->file('main_photo_1')->store('seller_verification', 'public');
+        // $path_2 = $request->file('main_photo_2')->store('seller_verification', 'public');
     
         // Save seller details
         $seller = Seller::create([
@@ -42,16 +50,16 @@ class SellerController extends Controller
             'city'           => $request->city,
             'country'        => $request->country,
             'postal_code'    => $request->postal_code,
-            'main_photo_1'   => "storage/$path_1",
-            'main_photo_2'   => "storage/$path_2",
+            'main_photo_1'   => $path_1,
+            'main_photo_2'   => $path_2
         ]);
     
         $sellerData = [
             'name'    => "{$seller->first_name} {$seller->last_name}",
             'status'  => 'Pending',
             'email'   => auth()->user()->email,
-            'photo_1' => asset("storage/$path_1"),
-            'photo_2' => asset("storage/$path_2"),
+            'photo_1' => asset("$path_1"),
+            'photo_2' => asset("$path_2"),
         ];
         
         // Queue Emails
